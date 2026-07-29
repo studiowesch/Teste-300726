@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foco & Design — Pomodoro de Curiosidades sobre Móveis</title>
+<style>
+  :root {
+    --bg: #f4ede4;
+    --bg-panel: #ffffff;
+    --text: #2e2620;
+    --text-soft: #6b5f52;
+    --accent: #b5652b;
+    --accent-soft: #e8c9a8;
+    --border: #e2d5c4;
+    --focus: #b5652b;
+    --break: #4f7a63;
+    --shadow: rgba(46, 38, 32, 0.12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1815;
+      --bg-panel: #26211c;
+      --text: #f0e8dd;
+      --text-soft: #b8a996;
+      --accent: #e2a06c;
+      --accent-soft: #4a3626;
+      --border: #3a322a;
+      --focus: #e2a06c;
+      --break: #7fae92;
+      --shadow: rgba(0, 0, 0, 0.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1815;
+    --bg-panel: #26211c;
+    --text: #f0e8dd;
+    --text-soft: #b8a996;
+    --accent: #e2a06c;
+    --accent-soft: #4a3626;
+    --border: #3a322a;
+    --focus: #e2a06c;
+    --break: #7fae92;
+    --shadow: rgba(0, 0, 0, 0.4);
+  }
+  :root[data-theme="light"] {
+    --bg: #f4ede4;
+    --bg-panel: #ffffff;
+    --text: #2e2620;
+    --text-soft: #6b5f52;
+    --accent: #b5652b;
+    --accent-soft: #e8c9a8;
+    --border: #e2d5c4;
+    --focus: #b5652b;
+    --break: #4f7a63;
+    --shadow: rgba(46, 38, 32, 0.12);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+  .wrap {
+    width: 100%;
+    max-width: 560px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  header h1 {
+    font-size: 1.6rem;
+    margin: 0 0 4px;
+    letter-spacing: 0.3px;
+  }
+  header p {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 0.95rem;
+  }
+  .panel {
+    background: var(--bg-panel);
+    border-radius: 18px;
+    box-shadow: 0 8px 24px var(--shadow);
+    padding: 28px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+  }
+  .mode-tag {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    font-family: system-ui, sans-serif;
+  }
+  .mode-tag.focus { background: var(--accent-soft); color: var(--focus); }
+  .mode-tag.break { background: var(--accent-soft); color: var(--break); }
+
+  .timer {
+    font-size: 4.2rem;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    margin: 8px 0 20px;
+    font-weight: bold;
+    letter-spacing: 2px;
+  }
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 6px;
+  }
+  button {
+    font-family: system-ui, sans-serif;
+    font-size: 0.95rem;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    transition: transform 0.08s ease, background 0.15s ease;
+  }
+  button:hover { background: var(--accent-soft); }
+  button:active { transform: scale(0.96); }
+  button.primary {
+    background: var(--accent);
+    color: var(--bg-panel);
+    border-color: var(--accent);
+  }
+  button.primary:hover { filter: brightness(1.08); }
+
+  .settings {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 18px;
+    font-family: system-ui, sans-serif;
+    font-size: 0.85rem;
+    color: var(--text-soft);
+  }
+  .settings label { display: flex; align-items: center; gap: 6px; }
+  .settings input {
+    width: 52px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, sans-serif;
+  }
+
+  .curio {
+    display: none;
+  }
+  .curio.show { display: block; }
+  .curio h3 {
+    font-family: system-ui, sans-serif;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--break);
+    margin: 0 0 10px;
+  }
+  .curio p {
+    font-size: 1.08rem;
+    line-height: 1.55;
+    margin: 0 0 14px;
+  }
+  .curio button {
+    font-size: 0.85rem;
+    padding: 8px 16px;
+  }
+
+  .tasks h2 {
+    font-size: 1rem;
+    font-family: system-ui, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-soft);
+    margin: 0 0 14px;
+  }
+  .task-input {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .task-input input {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, sans-serif;
+    font-size: 0.95rem;
+  }
+  ul.task-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  ul.task-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: system-ui, sans-serif;
+    font-size: 0.95rem;
+  }
+  ul.task-list li:last-child { border-bottom: none; }
+  ul.task-list li.done span { text-decoration: line-through; color: var(--text-soft); }
+  ul.task-list li .remove {
+    margin-left: auto;
+    cursor: pointer;
+    color: var(--text-soft);
+    font-size: 0.85rem;
+    background: none;
+    border: none;
+    padding: 2px 6px;
+  }
+  ul.task-list li input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+  }
+
+  .theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    font-family: system-ui, sans-serif;
+    font-size: 0.8rem;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    cursor: pointer;
+    color: var(--text);
+  }
+
+  footer {
+    text-align: center;
+    color: var(--text-soft);
+    font-size: 0.8rem;
+    font-family: system-ui, sans-serif;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">🌓 Tema</button>
+
+<div class="wrap">
+  <header>
+    <h1>Foco &amp; Design</h1>
+    <p>Um Pomodoro que ensina uma curiosidade de design de móveis a cada pausa</p>
+  </header>
+
+  <div class="panel" id="timerPanel">
+    <div style="text-align:center">
+      <span class="mode-tag focus" id="modeTag">Foco</span>
+    </div>
+    <div class="timer" id="timerDisplay">25:00</div>
+    <div class="controls">
+      <button class="primary" id="startBtn">Iniciar</button>
+      <button id="pauseBtn">Pausar</button>
+      <button id="resetBtn">Reiniciar</button>
+    </div>
+    <div class="settings">
+      <label>Foco (min) <input type="number" id="focusInput" value="25" min="1" max="90"></label>
+      <label>Pausa (min) <input type="number" id="breakInput" value="5" min="1" max="30"></label>
+    </div>
+
+    <div class="curio" id="curioBox">
+      <hr style="border:none;border-top:1px solid var(--border);margin:22px 0">
+      <h3>Curiosidade de design</h3>
+      <p id="curioText"></p>
+      <button id="nextCurio">Outra curiosidade →</button>
+    </div>
+  </div>
+
+  <div class="panel tasks">
+    <h2>Tarefas desta sessão</h2>
+    <div class="task-input">
+      <input type="text" id="taskInput" placeholder="O que você vai fazer neste foco?">
+      <button class="primary" id="addTaskBtn">Adicionar</button>
+    </div>
+    <ul class="task-list" id="taskList"></ul>
+  </div>
+
+  <footer>Feche a aba a qualquer momento — nada é enviado para fora do seu navegador.</footer>
+</div>
+
+<audio id="dingSound" preload="auto">
+  <source src="data:audio/wav;base64,UklGRl9AAABXQVZFZm10IBAAAAABAAEAgLsAAAB3AQACABAAZGF0YTtAAAA=" type="audio/wav">
+</audio>
+
+<script>
+  const CURIOSITIES = [
+    "A cadeira Thonet No. 14, de 1859, foi feita com madeira curvada a vapor e virou a cadeira mais vendida do mundo — peça a peça, ela vinha desmontada em caixas para reduzir custo de transporte, décadas antes do conceito de móvel 'plano' da IKEA.",
+    "O termo 'ottoman' (pufe) vem do Império Otomano: assentos estofados baixos, sem encosto, eram comuns em salas otomanas do século XVIII e foram adotados pela Europa como peça de descanso para os pés.",
+    "Charles e Ray Eames desenvolveram técnicas de moldagem de madeira compensada curvada durante a Segunda Guerra Mundial fabricando talas ortopédicas para o exército — depois aplicaram a mesma técnica nas icônicas cadeiras Eames.",
+    "As cadeiras Chiavari, criadas em Chiavari, na Itália, no início do século XIX, pesam pouco mais de 1 kg graças a uma estrutura de madeira extremamente fina, sendo até hoje escolha comum para casamentos por serem leves e resistentes.",
+    "O estilo Shaker de móveis, dos EUA do século XVIII e XIX, evitava ornamentos por princípio religioso — a comunidade acreditava que a simplicidade e a função honesta do objeto eram formas de expressar fé.",
+    "A escola Bauhaus, fundada em 1919 na Alemanha, defendia que 'a forma segue a função' e deu origem a móveis com tubos de aço, como a cadeira Wassily de Marcel Breuer, inspirada no guidão de uma bicicleta.",
+    "O sofá Chesterfield, com seu característico capitonê (botões afundados), surgiu no século XVIII e é atribuído ao 4º Conde de Chesterfield, que teria pedido um assento em que cavalheiros pudessem sentar sem amassar suas roupas.",
+    "A poltrona Barcelona, criada por Ludwig Mies van der Rohe e Lilly Reich em 1929 para o Pavilhão da Alemanha na Exposição de Barcelona, foi pensada originalmente como um trono para a realeza espanhola visitar o evento.",
+    "O design flat-pack (móveis desmontados em caixas planas) não foi invenção da IKEA: a empresa apenas popularizou em massa, na década de 1950, uma ideia que remonta aos móveis coloniais britânicos do século XIX, pensados para caber em navios.",
+    "A cadeira Panton, de Verner Panton (1967), foi a primeira cadeira do mundo feita de uma peça única de plástico moldado por injeção, sem juntas nem parafusos.",
+    "O design ergonômico de escritório ganhou força na década de 1970 com a cadeira Ergon, da Herman Miller, considerada a primeira cadeira de escritório 'baseada em pesquisa' sobre postura e conforto.",
+    "As redes de dormir, populares em várias culturas tropicais, eram usadas por marinheiros europeus a partir do século XVI porque balançavam com o navio e evitavam que o corpo fosse jogado contra o casco em mares agitados.",
+    "A poltrona Egg, de Arne Jacobsen (1958), foi desenvolvida com uma estrutura de espuma esculpida à mão sobre uma base de metal — o protótipo levou meses só para chegar à curva certa da casca.",
+    "Móveis de bambu são usados há mais de 7 mil anos na Ásia; o material é tecnicamente uma grama, não uma madeira, e pode crescer quase um metro por dia em algumas espécies.",
+    "A cadeira Wishbone, de Hans Wegner (1949), é inspirada em retratos de mandarins chineses sentados em cadeiras de espaldar circular — Wegner reinterpretou o desenho em versão minimalista escandinava.",
+    "O 'Womb Chair' de Eero Saarinen, de 1948, recebeu esse nome (cadeira-útero) porque o designer queria criar um assento em que a pessoa pudesse se enroscar e se sentir protegida, como voltar ao ventre materno.",
+    "A mesa de centro moderna só se popularizou no início do século XX, junto com a ascensão da sala de estar como cômodo social — antes disso, mesas baixas eram raras nos lares europeus.",
+    "O reclinável (poltrona de descanso com encosto ajustável) foi patenteado nos EUA em 1928 por dois primos, Edward Knabusch e Edwin Shoemaker, que começaram testando o mecanismo em uma cadeira de varanda de madeira.",
+    "A cadeira Tulip, de Eero Saarinen (1956), nasceu do incômodo do designer com a 'bagunça de pernas' embaixo das mesas tradicionais — ele queria uma base única, escultural, que 'limpasse visualmente' o ambiente.",
+    "Estantes modulares, como o sistema String (Suécia, 1949), surgiram de um concurso para criar móveis pequenos e flexíveis o bastante para caber nos apartamentos compactos do pós-guerra.",
+    "O design de móveis japonês tradicional, como o tatame e a mesa kotatsu (com aquecedor embutido sob uma manta), foi pensado para ambientes onde as pessoas sentam no chão, priorizando altura baixa e proximidade com o solo.",
+    "A cadeira de balanço, tal como conhecemos, é uma invenção do século XVIII na América colonial — não há registros de cadeiras de balanço na Europa antes de serem exportadas de volta pelos colonos americanos.",
+    "O designer italiano Gio Ponti criou a Superleggera (1957), uma cadeira tão leve que podia ser erguida com um dedo, inspirada nas cadeiras de pescadores da vila de Chiavari.",
+    "Móveis de vime e junco eram tão associados a varandas e clima quente que, no século XIX, viraram símbolo de status em resorts vitorianos, antes de se tornarem item comum e acessível no século XX.",
+    "A escrivaninha 'secretária', com tampo que se abre para revelar compartimentos e esconde uma superfície de trabalho, ficou popular na Europa do século XVIII entre a burguesia que precisava guardar documentos e cartas em sigilo."
+  ];
+
+  let usedIndexes = [];
+  function pickCuriosity() {
+    if (usedIndexes.length >= CURIOSITIES.length) usedIndexes = [];
+    let idx;
+    do { idx = Math.floor(Math.random() * CURIOSITIES.length); } while (usedIndexes.includes(idx));
+    usedIndexes.push(idx);
+    return CURIOSITIES[idx];
+  }
+
+  const timerDisplay = document.getElementById('timerDisplay');
+  const modeTag = document.getElementById('modeTag');
+  const startBtn = document.getElementById('startBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const focusInput = document.getElementById('focusInput');
+  const breakInput = document.getElementById('breakInput');
+  const curioBox = document.getElementById('curioBox');
+  const curioText = document.getElementById('curioText');
+  const nextCurioBtn = document.getElementById('nextCurio');
+  const dingSound = document.getElementById('dingSound');
+
+  let mode = 'focus';
+  let secondsLeft = 25 * 60;
+  let intervalId = null;
+  let running = false;
+
+  function formatTime(s) {
+    const m = Math.floor(s / 60).toString().padStart(2, '0');
+    const sec = (s % 60).toString().padStart(2, '0');
+    return `${m}:${sec}`;
+  }
+
+  function updateDisplay() {
+    timerDisplay.textContent = formatTime(secondsLeft);
+    document.title = `${formatTime(secondsLeft)} — ${mode === 'focus' ? 'Foco' : 'Pausa'}`;
+  }
+
+  function switchMode() {
+    if (mode === 'focus') {
+      mode = 'break';
+      modeTag.textContent = 'Pausa';
+      modeTag.classList.remove('focus');
+      modeTag.classList.add('break');
+      secondsLeft = Math.max(1, parseInt(breakInput.value || '5', 10)) * 60;
+      curioText.textContent = pickCuriosity();
+      curioBox.classList.add('show');
+    } else {
+      mode = 'focus';
+      modeTag.textContent = 'Foco';
+      modeTag.classList.remove('break');
+      modeTag.classList.add('focus');
+      secondsLeft = Math.max(1, parseInt(focusInput.value || '25', 10)) * 60;
+      curioBox.classList.remove('show');
+    }
+    try { dingSound.currentTime = 0; dingSound.play().catch(()=>{}); } catch(e) {}
+    updateDisplay();
+  }
+
+  function tick() {
+    secondsLeft--;
+    if (secondsLeft < 0) {
+      switchMode();
+      return;
+    }
+    updateDisplay();
+  }
+
+  startBtn.addEventListener('click', () => {
+    if (running) return;
+    running = true;
+    intervalId = setInterval(tick, 1000);
+  });
+
+  pauseBtn.addEventListener('click', () => {
+    running = false;
+    clearInterval(intervalId);
+  });
+
+  resetBtn.addEventListener('click', () => {
+    running = false;
+    clearInterval(intervalId);
+    mode = 'focus';
+    modeTag.textContent = 'Foco';
+    modeTag.classList.remove('break');
+    modeTag.classList.add('focus');
+    secondsLeft = Math.max(1, parseInt(focusInput.value || '25', 10)) * 60;
+    curioBox.classList.remove('show');
+    updateDisplay();
+  });
+
+  nextCurioBtn.addEventListener('click', () => {
+    curioText.textContent = pickCuriosity();
+  });
+
+  focusInput.addEventListener('change', () => {
+    if (mode === 'focus' && !running) {
+      secondsLeft = Math.max(1, parseInt(focusInput.value || '25', 10)) * 60;
+      updateDisplay();
+    }
+  });
+  breakInput.addEventListener('change', () => {
+    if (mode === 'break' && !running) {
+      secondsLeft = Math.max(1, parseInt(breakInput.value || '5', 10)) * 60;
+      updateDisplay();
+    }
+  });
+
+  updateDisplay();
+
+  // Tasks
+  const taskInput = document.getElementById('taskInput');
+  const addTaskBtn = document.getElementById('addTaskBtn');
+  const taskList = document.getElementById('taskList');
+
+  function addTask(text) {
+    const li = document.createElement('li');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.addEventListener('change', () => li.classList.toggle('done', checkbox.checked));
+    const span = document.createElement('span');
+    span.textContent = text;
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = '✕';
+    removeBtn.className = 'remove';
+    removeBtn.addEventListener('click', () => li.remove());
+    li.appendChild(checkbox);
+    li.appendChild(span);
+    li.appendChild(removeBtn);
+    taskList.appendChild(li);
+  }
+
+  addTaskBtn.addEventListener('click', () => {
+    const val = taskInput.value.trim();
+    if (!val) return;
+    addTask(val);
+    taskInput.value = '';
+    taskInput.focus();
+  });
+  taskInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') addTaskBtn.click();
+  });
+
+  // Theme toggle
+  const themeToggle = document.getElementById('themeToggle');
+  themeToggle.addEventListener('click', () => {
+    const root = document.documentElement;
+    const current = root.getAttribute('data-theme');
+    if (current === 'dark') root.setAttribute('data-theme', 'light');
+    else if (current === 'light') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', 'dark');
+  });
+</script>
+
+</body>
+</html>
