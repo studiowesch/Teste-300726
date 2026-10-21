@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Notion",
+      "mcp__Google_Calendar",
+      "mcp__Google_Drive"
+    ]
+  }
+}
